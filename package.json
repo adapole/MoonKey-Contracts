@@ -1,0 +1,25 @@
+{
+  "name": "aa12",
+  "version": "0.0.1",
+  "description": "Account Abstraction with EIP4337",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "EIP4337"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "hardhat": "^2.13.0",
+    "mocha": "^10.2.0"
+  },
+  "dependencies": {
+    "@gnosis.pm/safe-contracts": "^1.3.0",
+    "@openzeppelin/contracts": "^4.8.2",
+    "chai": "^4.3.7"
+  }
+}
