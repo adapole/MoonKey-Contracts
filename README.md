@@ -3,7 +3,7 @@
 Clone the repository and add the submodules
 
 ```console
-git clone git@github.com:adapole/MoonKey-Contracts.git
+git clone git@github.com:moonkey-global/moonkey-contracts.git
 cd MoonKey-Contracts
 git submodule update --init
 ```
