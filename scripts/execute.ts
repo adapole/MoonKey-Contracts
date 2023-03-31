@@ -1,0 +1,89 @@
+import { ethers } from 'hardhat';
+import { fillAndSign } from '../test/UserOp';
+import {
+  EntryPoint__factory,
+  GnosisSafeProxyFactory__factory,
+  MoonKeyGnosisSafeAccountFactory__factory,
+  MoonKeyPluginSafe__factory,
+} from '../typechain';
+import * as dotenv from 'dotenv';
+import { getHttpRpcClient } from './getHttpRpcClient';
+dotenv.config();
+
+const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
+const proxyAddress = '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'; //GnosisSafeProxyFactory
+const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
+const safeSingletonAddress = '0x9846f4a9E0FB5Fe40c9007054a80e6239242B983'; //MoonKeyPluginSafe
+
+async function main() {
+  if (!process.env.PRIVATE_KEY)
+    throw new Error('Missing environment: Private key');
+  const provider = new ethers.providers.JsonRpcProvider(
+    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
+  );
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+  const owner = wallet.connect(provider);
+
+  //   TODO: use the stackUp techninc to encode an erc20 as example
+  // Or use a transfer transaciton of 1 wei for first test
+  const erc20ABI = [
+    'function transfer(address to, uint amount) returns (bool)',
+  ];
+
+  const operation = 0; //0
+  const value = 1; //ETH value
+  const toAddress = '0xE097d6B3100777DC31B34dC2c58fB524C2e76921'; //ERC20 token address
+  const erc20 = new ethers.utils.Interface(erc20ABI);
+  const callData = '0x'; //erc20.encodeFunctionData('transfer', [accountAddress, 1]);
+
+  const safeSingleton = new MoonKeyPluginSafe__factory(owner).attach(
+    safeSingletonAddress
+  );
+  const safe_execTxCallData = safeSingleton.interface.encodeFunctionData(
+    'executeAndRevert',
+    ['0x109Bf5E11140772a1427162bb51e23c244d13b88', value, callData, operation]
+  );
+
+  /*
+  // TODO: simpler means to fetch the account address
+  const accountFactory = new MoonKeyGnosisSafeAccountFactory__factory(
+    owner
+  ).attach(accountAddress);
+  const proxyFactory = new GnosisSafeProxyFactory__factory(owner).attach(
+    proxyAddress
+  );
+  const ev = await proxyFactory.queryFilter(
+    proxyFactory.filters.ProxyCreation()
+  );
+  const addr = ev[0].args.proxy;
+  const proxy = MoonKeyPluginSafe__factory.connect(addr, owner);
+  */
+
+  const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
+  const op = await fillAndSign(
+    {
+      sender: '0x7DD499cEAF1A16210F722Ac8727493b3858ED9b7', //The account
+      callData: safe_execTxCallData,
+    },
+    owner,
+    entryPoint
+  );
+  console.log('UserOp', op);
+
+  const client = await getHttpRpcClient(
+    provider,
+    process.env.BUNDLER_URL!,
+    entrypointAddress
+  );
+  const uoHash = await client.sendUserOpToBundler(op);
+  console.log(`UserOpHash: ${uoHash}`);
+
+  console.log('Waiting for transaction...');
+  //   const txHash = await accountAPI.getUserOpReceipt(uoHash);
+  //   console.log(`Transaction hash: ${txHash}`);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

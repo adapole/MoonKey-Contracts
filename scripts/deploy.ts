@@ -1,23 +1,71 @@
-import { ethers } from "hardhat";
+import { hexConcat, hexZeroPad, parseEther } from 'ethers/lib/utils';
+import { ethers } from 'hardhat';
+import { fillAndSign } from '../test/UserOp';
+import {
+  EntryPoint__factory,
+  MoonKeyGnosisSafeAccountFactory__factory,
+} from '../typechain';
+import { getHttpRpcClient } from './getHttpRpcClient';
+const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
+const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
-
-  const lockedAmount = ethers.utils.parseEther("0.001");
-
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with ${ethers.utils.formatEther(lockedAmount)}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+  if (!process.env.PRIVATE_KEY)
+    throw new Error('Missing environment: Private key');
+  const provider = new ethers.providers.JsonRpcProvider(
+    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
   );
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+  const owner = wallet.connect(provider);
+  const ownerAddress = await owner.getAddress();
+
+  const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
+
+  const accountFactory = new MoonKeyGnosisSafeAccountFactory__factory(
+    owner
+  ).attach(accountAddress);
+  console.log('safeSingletonAddress', await accountFactory.safeSingleton());
+
+  const initCode = hexConcat([
+    accountFactory.address,
+    accountFactory.interface.encodeFunctionData('createAccount', [
+      ownerAddress,
+      123,
+    ]),
+  ]);
+  console.log('initCode', initCode);
+
+  const counterfactualAddress = await accountFactory.callStatic.getAddress(
+    ownerAddress,
+    123
+  );
+  console.log('counterfactualAddress', counterfactualAddress);
+
+  await owner.sendTransaction({
+    to: counterfactualAddress,
+    value: parseEther('0.1'),
+  });
+
+  const op = await fillAndSign(
+    {
+      sender: counterfactualAddress,
+      initCode,
+      verificationGasLimit: 400000,
+    },
+    owner,
+    entryPoint
+  );
+  const client = await getHttpRpcClient(
+    provider,
+    process.env.BUNDLER_URL!,
+    entrypointAddress
+  );
+  const uoHash = await client.sendUserOpToBundler(op);
+  console.log(`UserOpHash: ${uoHash}`);
+
+  console.log('Waiting for transaction...');
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

@@ -1,29 +1,50 @@
-## Getting Started
+# :moon: MoonKey Contracts
 
-Clone the repository and add the submodules
+This repo started as a fork of [the ZeroDev repo based on official AA repo](https://github.com/eth-infinitism/account-abstraction).
 
-```console
+# Setup
+
+Clone this repo into your local environment:
+
+```bash
 git clone git@github.com:moonkey-global/moonkey-contracts.git
-cd MoonKey-Contracts
-git submodule update --init
+cd moonkey-contracts
 ```
 
-Install the dependencies:
+Install dependencies:
 
-```shell
-npm install
+```bash
+yarn install
 ```
 
-# Sample Hardhat Project
+# Commands
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Once you have an environment setup, these commands can be used for running the example scripts.
 
-Try running some of the following tasks:
+### Get account address
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
+Smart contract account addresses can be deterministically generated.
+
+The account will be deployed by this command transaction.
+
+```bash
+yarn hardhat run ./scripts/deploy.ts
+```
+
+### Transfer ETH
+
+Before executing a transfer, make sure to deposit some ETH to the address.
+
+```bash
+yarn hardhat run ./scripts/execute.ts
+```
+
+### Transfer ERC-20 token
+
+Make sure the address generated has enough specified tokens to execute the transfer.
+
+If not using a paymaster, make sure to also have enough ETH to pay gas fees.
+
+```bash
+yarn hardhat run ./scripts/execute_erc20.ts
 ```
