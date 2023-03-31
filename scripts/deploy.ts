@@ -41,12 +41,10 @@ async function main() {
   );
   console.log('counterfactualAddress', counterfactualAddress);
 
-  /*
   await owner.sendTransaction({
     to: counterfactualAddress,
     value: parseEther('0.1'),
   });
-  */
 
   const op = await fillAndSign(
     {
