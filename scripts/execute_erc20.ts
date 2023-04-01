@@ -23,12 +23,23 @@ async function main() {
   const owner = wallet.connect(provider);
   const ownerAddress = await owner.getAddress();
 
+  const erc20ABI = [
+    'function transfer(address to, uint amount) returns (bool)',
+  ];
+
+  const toContract = '0xE097d6B3100777DC31B34dC2c58fB524C2e76921'; //ERC20 token address
+  const erc20 = new ethers.utils.Interface(erc20ABI);
+  const callData = erc20.encodeFunctionData('transfer', [
+    '0x109Bf5E11140772a1427162bb51e23c244d13b88',
+    1,
+  ]);
+
   const safeSingleton = new MoonKeyPluginSafe__factory(owner).attach(
     safeSingletonAddress
   );
   const safe_execTxCallData = safeSingleton.interface.encodeFunctionData(
     'executeAndRevert',
-    ['0x109Bf5E11140772a1427162bb51e23c244d13b88', 1, '0x', 0]
+    [toContract, 0, callData, 0]
   );
 
   const accountFactory = new MoonKeyGnosisSafeAccountFactory__factory(
