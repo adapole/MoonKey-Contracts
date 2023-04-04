@@ -117,27 +117,27 @@ const config: HardhatUserConfig = {
     },
   },
 
-  namedAccounts: {
-    paymasterOwner: {
-      default: `privatekey://${process.env.PAYMASTER_OWNER_PRIVATE_KEY!}`,
-    },
-  },
+  // namedAccounts: {
+  //   paymasterOwner: {
+  //     default: `privatekey://${process.env.PAYMASTER_OWNER_PRIVATE_KEY!}`,
+  //   },
+  // },
 
   mocha: {
     timeout: 10000,
   },
 
-  etherscan: {
-    apiKey: {
-      // ethereum
-      sepolia: process.env.ETHERSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
+  // etherscan: {
+  //   apiKey: {
+  //     // ethereum
+  //     sepolia: process.env.ETHERSCAN_API_KEY,
+  //     mainnet: process.env.ETHERSCAN_API_KEY,
 
-      // polygon
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
-      polygon: process.env.POLYGONSCAN_API_KEY,
-    },
-  },
+  //     // polygon
+  //     polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+  //     polygon: process.env.POLYGONSCAN_API_KEY,
+  //   },
+  // },
 };
 
 // coverage chokes on the "compilers" settings
