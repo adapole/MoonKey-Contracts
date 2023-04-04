@@ -1,22 +1,20 @@
 import { hexConcat, parseEther } from 'ethers/lib/utils';
 import { ethers } from 'ethers';
 import { fillAndSign } from '../../test/UserOp';
-import { EntryPoint__factory } from '../../typechain';
-import { getHttpRpcClient } from './getHttpRpcClient';
-import { getUserOpReceipt } from './getUserOpReceipt';
+import { EntryPoint__factory } from './typechains/EntryPoint__factory';
+import { getHttpRpcClient } from './utils/getHttpRpcClient';
+import { getUserOpReceipt } from './utils/getUserOpReceipt';
+
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
 const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
 
 async function main() {
   // setup provider and signer
-  if (!process.env.PRIVATE_KEY)
-    throw new Error('Missing environment: Private key');
   const provider = new ethers.providers.JsonRpcProvider(
     `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
   );
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!);
   const owner = wallet.connect(provider);
-  const ownerAddress = await owner.getAddress();
 
   // Get contracts to interacte with
   const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
@@ -29,10 +27,12 @@ async function main() {
     ],
     provider
   );
+  // Use a proxy to interact with the base MoonKey wallet
+  // const proxy = accountFactory.connect(accountAddress, provider.getSigner());
 
   // Fetch the ERC-4337 safe wallet address
   const counterfactualAddress = await accountFactory.callStatic.getAddress(
-    ownerAddress,
+    owner.address,
     123
   );
   console.log('Your ER4337 address', counterfactualAddress);
@@ -47,7 +47,7 @@ async function main() {
   const initCode = hexConcat([
     accountFactory.address,
     accountFactory.interface.encodeFunctionData('createAccount', [
-      ownerAddress,
+      owner.address,
       123,
     ]),
   ]);
@@ -77,7 +77,7 @@ async function main() {
   const txHash = await getUserOpReceipt(
     provider,
     entrypointAddress,
-    owner,
+    provider.getSigner(),
     uoHash
   );
   console.log(`Transaction hash: ${txHash}`);
