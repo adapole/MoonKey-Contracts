@@ -6,15 +6,15 @@ import { getHttpRpcClient } from './utils/getHttpRpcClient';
 import { getUserOpReceipt } from './utils/getUserOpReceipt';
 
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
+const accountAddress = '0x54034b9063Cb8AB49B0Cd5500Ba44cbb1405984D'; //MoonKeyGonosisAccountFactory
 
 async function main() {
   // setup provider and signer
   const provider = new ethers.providers.JsonRpcProvider(
     `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
   );
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!);
-  const owner = wallet.connect(provider);
+  const owner = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const funder = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
 
   // Get contracts to interacte with
   const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
@@ -38,7 +38,7 @@ async function main() {
   console.log('Your ER4337 address', counterfactualAddress);
 
   // Funding the deterministic address
-  await owner.sendTransaction({
+  await funder.sendTransaction({
     to: counterfactualAddress,
     value: parseEther('0.1'),
   });
