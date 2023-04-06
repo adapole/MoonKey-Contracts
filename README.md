@@ -49,9 +49,18 @@ If not using a paymaster, make sure to also have enough ETH to pay gas fees.
 yarn run ts-node --files ./scripts/run/transfer_erc20.ts <token-contract> <to-address> <value>
 ```
 
+### Transfer using Paymaster
+
+Before executing transaction using paymaster, make sure to update the verifying paymaster address.
+Current address only allows spending for team members. Therefore deploy your own paymaster and use that address.
+
+```bash
+yarn run ts-node --files ./scripts/run/paymaster.ts <to-address> <value-wei>
+```
+
 # Custom deployment
 
-If You want to use your own account factory follow this steps.
+If You want to use your own account factory or you want to use **paymaster** follow this steps.
 
 First, edit [hardhat.config.ts](./hardhat.config.ts) and uncomment `namedAccounts` and `etherscan`
 
