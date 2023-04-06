@@ -9,8 +9,8 @@ import { VerifyingPaymaster__factory } from './typechains/VerifyingPaymaster__fa
 dotenv.config();
 
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
-const paymasterAddress = '0xd3Dc15e08e735186371226746e8f4585dDa135Ba'; //VerifyingPaymaster
+const accountAddress = '0x54034b9063Cb8AB49B0Cd5500Ba44cbb1405984D'; //MoonKeyGonosisAccountFactory
+const paymasterAddress = '0x6D0Bc38A66DCe1Eb51D0fb087abAD151Ac49cD2F'; //VerifyingPaymaster
 const VALID_UNTIL = 1777068462;
 const VALID_AFTER = 0;
 
