@@ -6,19 +6,28 @@ import "./FunctionSignaturePolicy.sol";
 contract FunctionSignaturePolicyFactory {
     event NewPolicy(address indexed policy);
 
-    function deploy(Policy[] memory _policies) external returns(FunctionSignaturePolicy) {
-        FunctionSignaturePolicy policy = new FunctionSignaturePolicy{salt:keccak256(abi.encodePacked("ZeroDev"))}(_policies);
+    function deploy(
+        Policy[] memory _policies
+    ) external returns (FunctionSignaturePolicy) {
+        FunctionSignaturePolicy policy = new FunctionSignaturePolicy{
+            salt: keccak256(abi.encodePacked("MoonKey"))
+        }(_policies);
         emit NewPolicy(address(policy));
         return policy;
     }
 
-    function getPolicy(Policy[] memory _policies) public view returns(FunctionSignaturePolicy) {
+    function getPolicy(
+        Policy[] memory _policies
+    ) public view returns (FunctionSignaturePolicy) {
         bytes memory initCode = abi.encodePacked(
             type(FunctionSignaturePolicy).creationCode,
             abi.encode(_policies)
         );
-        bytes32 salt = keccak256(abi.encodePacked("ZeroDev"));
-        
-        return FunctionSignaturePolicy(Create2.computeAddress(salt, keccak256(initCode), address(this)));
+        bytes32 salt = keccak256(abi.encodePacked("MoonKey"));
+
+        return
+            FunctionSignaturePolicy(
+                Create2.computeAddress(salt, keccak256(initCode), address(this))
+            );
     }
 }

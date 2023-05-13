@@ -6,14 +6,14 @@ import {
   MoonKeyGnosisSafeAccountFactory__factory,
 } from '../typechain';
 import { getHttpRpcClient } from './getHttpRpcClient';
-const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
+const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
+const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
 
 async function main() {
   if (!process.env.PRIVATE_KEY)
     throw new Error('Missing environment: Private key');
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
+    `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`
   );
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
   const owner = wallet.connect(provider);
@@ -41,20 +41,21 @@ async function main() {
   );
   console.log('counterfactualAddress', counterfactualAddress);
 
-  await owner.sendTransaction({
-    to: counterfactualAddress,
-    value: parseEther('0.1'),
-  });
+  // await owner.sendTransaction({
+  //   to: counterfactualAddress,
+  //   value: parseEther('0.1'),
+  // });
 
   const op = await fillAndSign(
     {
       sender: counterfactualAddress,
       initCode,
-      verificationGasLimit: 400000,
+      verificationGasLimit: 4000000,
     },
     owner,
     entryPoint
   );
+  return;
   const client = await getHttpRpcClient(
     provider,
     process.env.BUNDLER_URL!,

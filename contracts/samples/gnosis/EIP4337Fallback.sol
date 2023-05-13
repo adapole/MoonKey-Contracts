@@ -21,7 +21,8 @@ using ECDSA for bytes32;
 contract EIP4337Fallback is DefaultCallbackHandler, IAccount, IERC1271 {
     bytes4 internal constant ERC1271_MAGIC_VALUE = 0x1626ba7e;
 
-    address immutable public eip4337manager;
+    address public immutable eip4337manager;
+
     constructor(address _eip4337manager) {
         eip4337manager = _eip4337manager;
     }
@@ -33,7 +34,13 @@ contract EIP4337Fallback is DefaultCallbackHandler, IAccount, IERC1271 {
         // delegate entire msg.data (including the appended "msg.sender") to the EIP4337Manager
         // will work only for GnosisSafe contracts
         GnosisSafe safe = GnosisSafe(payable(msg.sender));
-        (bool success, bytes memory ret) = safe.execTransactionFromModuleReturnData(eip4337manager, 0, msg.data, Enum.Operation.DelegateCall);
+        (bool success, bytes memory ret) = safe
+            .execTransactionFromModuleReturnData(
+                eip4337manager,
+                0,
+                msg.data,
+                Enum.Operation.DelegateCall
+            );
         if (!success) {
             assembly {
                 revert(add(ret, 32), mload(ret))
@@ -45,9 +52,21 @@ contract EIP4337Fallback is DefaultCallbackHandler, IAccount, IERC1271 {
     /**
      * called from the Safe. delegate actual work to EIP4337Manager
      */
-    function validateUserOp(UserOperation calldata, bytes32, uint256) override external returns (uint256 deadline){
+    function validateUserOp(
+        UserOperation calldata,
+        bytes32,
+        uint256
+    ) external override returns (uint256 deadline) {
         bytes memory ret = delegateToManager();
         return abi.decode(ret, (uint256));
+    }
+
+    /**
+     * Helper for wallet to get the next nonce.
+     */
+    function getNonce() public returns (uint256 nonce) {
+        bytes memory ret = delegateToManager();
+        (nonce) = abi.decode(ret, (uint256));
     }
 
     /**
@@ -65,7 +84,7 @@ contract EIP4337Fallback is DefaultCallbackHandler, IAccount, IERC1271 {
     function isValidSignature(
         bytes32 _hash,
         bytes memory _signature
-    ) external override view returns (bytes4) {
+    ) external view override returns (bytes4) {
         bytes32 hash = _hash.toEthSignedMessageHash();
         address recovered = hash.recover(_signature);
 

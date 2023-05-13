@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 const deployMoonKey: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const entrypoint = '0x0576a174D229E3cFA37253523E645A78A0C91B57';
+  const entrypoint = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789';
   const proxyFactory = '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2';
   const { deployments, ethers } = hre;
   const { deploy } = deployments;
