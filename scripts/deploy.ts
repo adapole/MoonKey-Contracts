@@ -55,7 +55,7 @@ async function main() {
     owner,
     entryPoint
   );
-  return;
+
   const client = await getHttpRpcClient(
     provider,
     process.env.BUNDLER_URL!,

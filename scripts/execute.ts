@@ -9,9 +9,9 @@ import * as dotenv from 'dotenv';
 import { getHttpRpcClient } from './getHttpRpcClient';
 dotenv.config();
 
-const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
-const safeSingletonAddress = '0x9846f4a9E0FB5Fe40c9007054a80e6239242B983'; //MoonKeyPluginSafe
+const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
+const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
+const safeSingletonAddress = '0x5711Fd2d656942895763ac2FC5824607Ef6b5C92'; //MoonKeyPluginSafe
 
 async function main() {
   if (!process.env.PRIVATE_KEY)

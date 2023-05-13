@@ -137,7 +137,7 @@ export const DefaultsForUserOp: UserOperation = {
   initCode: '0x',
   callData: '0x',
   callGasLimit: 210000,
-  verificationGasLimit: 1000000, // default verification gas. will add create2 cost (3200+200*length) if initCode exists
+  verificationGasLimit: 10000000, // default verification gas. will add create2 cost (3200+200*length) if initCode exists
   preVerificationGas: 210000, // should also cover calldata cost.
   maxFeePerGas: 0,
   maxPriorityFeePerGas: 1e9,
@@ -272,7 +272,7 @@ export async function fillUserOp(
     if (provider == null)
       throw new Error('must have entryPoint to autofill maxFeePerGas');
     const block = await provider.getBlock('latest');
-    op1.maxFeePerGas = block.baseFeePerGas!.add(
+    op1.maxFeePerGas = block.baseFeePerGas?.add(
       op1.maxPriorityFeePerGas ?? DefaultsForUserOp.maxPriorityFeePerGas
     );
   }
