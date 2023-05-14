@@ -219,10 +219,10 @@ export const DefaultsForUserOp: UserOperation = {
   initCode: '0x',
   callData: '0x',
   callGasLimit: 40000,
-  verificationGasLimit: 150000, // default verification gas. will add create2 cost (3200+200*length) if initCode exists
+  verificationGasLimit: 1000000, // default verification gas. will add create2 cost (3200+200*length) if initCode exists
   preVerificationGas: 50000, // should also cover calldata cost.
-  maxFeePerGas: 1e9,
-  maxPriorityFeePerGas: 1e9,
+  maxFeePerGas: 1e10,
+  maxPriorityFeePerGas: 1e10,
   paymasterAndData: '0x',
   signature: '0x',
 };
