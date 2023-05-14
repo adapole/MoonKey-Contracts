@@ -1,4 +1,4 @@
-import { hexConcat, hexZeroPad, parseEther } from 'ethers/lib/utils';
+import { hexConcat } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 import { fillAndSign } from '../test/UserOp';
 import {
@@ -6,6 +6,8 @@ import {
   MoonKeyGnosisSafeAccountFactory__factory,
 } from '../typechain';
 import { getHttpRpcClient } from './getHttpRpcClient';
+import { getUserOpReceipt } from './getUserOpReceipt';
+
 const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
 const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
 
@@ -50,7 +52,7 @@ async function main() {
     {
       sender: counterfactualAddress,
       initCode,
-      verificationGasLimit: 4000000,
+      verificationGasLimit: 1000000,
     },
     owner,
     entryPoint
@@ -65,6 +67,13 @@ async function main() {
   console.log(`UserOpHash: ${uoHash}`);
 
   console.log('Waiting for transaction...');
+  const txHash = await getUserOpReceipt(
+    provider,
+    entrypointAddress,
+    provider.getSigner(),
+    uoHash
+  );
+  console.log(`Transaction hash: ${txHash}`);
 }
 
 main().catch((error) => {

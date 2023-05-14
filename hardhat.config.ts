@@ -140,6 +140,10 @@ const config: HardhatUserConfig = {
       // polygon
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
+
+      // bsc
+      testnet: process.env.BSCSCAN_API_KEY,
+      bsc: process.env.BSCSCAN_API_KEY,
     },
   },
 };

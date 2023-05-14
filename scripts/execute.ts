@@ -7,6 +7,7 @@ import {
 } from '../typechain';
 import * as dotenv from 'dotenv';
 import { getHttpRpcClient } from './getHttpRpcClient';
+import { getUserOpReceipt } from './getUserOpReceipt';
 dotenv.config();
 
 const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
@@ -17,7 +18,7 @@ async function main() {
   if (!process.env.PRIVATE_KEY)
     throw new Error('Missing environment: Private key');
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
+    `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`
   );
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
   const owner = wallet.connect(provider);
@@ -60,8 +61,13 @@ async function main() {
   console.log(`UserOpHash: ${uoHash}`);
 
   console.log('Waiting for transaction...');
-  //   const txHash = await accountAPI.getUserOpReceipt(uoHash);
-  //   console.log(`Transaction hash: ${txHash}`);
+  const txHash = await getUserOpReceipt(
+    provider,
+    entrypointAddress,
+    provider.getSigner(),
+    uoHash
+  );
+  console.log(`Transaction hash: ${txHash}`);
 }
 
 main().catch((error) => {
