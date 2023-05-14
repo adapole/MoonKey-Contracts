@@ -5,13 +5,13 @@ import { EntryPoint__factory } from './typechains/EntryPoint__factory';
 import { getHttpRpcClient } from './utils/getHttpRpcClient';
 import { getUserOpReceipt } from './utils/getUserOpReceipt';
 
-const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x54034b9063Cb8AB49B0Cd5500Ba44cbb1405984D'; //MoonKeyGonosisAccountFactory
+const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
+const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
 
 async function main() {
   // setup provider and signer
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
+    `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`
   );
   const owner = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
   const funder = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
@@ -57,7 +57,7 @@ async function main() {
     {
       sender: counterfactualAddress,
       initCode,
-      verificationGasLimit: 400000,
+      verificationGasLimit: 1000000,
     },
     owner,
     entryPoint

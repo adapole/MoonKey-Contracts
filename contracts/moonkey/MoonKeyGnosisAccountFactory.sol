@@ -9,7 +9,6 @@ import "@gnosis.pm/safe-contracts/contracts/handler/DefaultCallbackHandler.sol";
 /**
  * A wrapper factory contract to deploy GnosisSafe as an ERC-4337 account contract.
  */
-/// @author zerodev team
 /// @author modified by moonkey team
 contract MoonKeyGnosisSafeAccountFactory {
     GnosisSafeProxyFactory public immutable proxyFactory;

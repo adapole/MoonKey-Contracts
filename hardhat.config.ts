@@ -87,6 +87,10 @@ const config: HardhatUserConfig = {
     localgeth: { url: 'http://localgeth:8545' },
     proxy: getNetwork1('http://localhost:8545'),
     kovan: getNetwork('kovan'),
+    testnet: {
+      url: `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`,
+      accounts: getAccounts(),
+    },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`,
       accounts: getAccounts(),
@@ -136,6 +140,10 @@ const config: HardhatUserConfig = {
   //     // polygon
   //     polygonMumbai: process.env.POLYGONSCAN_API_KEY,
   //     polygon: process.env.POLYGONSCAN_API_KEY,
+
+  //     // bsc
+  //     testnet: process.env.BSCSCAN_API_KEY,
+  //     bsc: process.env.BSCSCAN_API_KEY,
   //   },
   // },
 };

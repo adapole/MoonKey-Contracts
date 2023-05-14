@@ -8,9 +8,9 @@ import { arrayify, defaultAbiCoder, hexConcat } from 'ethers/lib/utils';
 import { VerifyingPaymaster__factory } from './typechains/VerifyingPaymaster__factory';
 dotenv.config();
 
-const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x54034b9063Cb8AB49B0Cd5500Ba44cbb1405984D'; //MoonKeyGonosisAccountFactory
-const paymasterAddress = '0x6D0Bc38A66DCe1Eb51D0fb087abAD151Ac49cD2F'; //VerifyingPaymaster
+const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
+const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
+const paymasterAddress = '0x2A8Fd15a36826809fD1b5d95DBaeb3a10B30E1fd'; //VerifyingPaymaster
 const VALID_UNTIL = 1777068462;
 const VALID_AFTER = 0;
 
@@ -21,7 +21,7 @@ async function main() {
 
   // setup provider and signer
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_ID}`
+    `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`
   );
   const owner = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
   const offchainSigner = new ethers.Wallet(
