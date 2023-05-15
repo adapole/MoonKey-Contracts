@@ -1,12 +1,21 @@
-import { hexConcat, parseEther } from 'ethers/lib/utils';
+import {
+  hexConcat,
+  parseEther,
+  defaultAbiCoder,
+  arrayify,
+} from 'ethers/lib/utils';
 import { ethers } from 'ethers';
 import { fillAndSign } from '../../test/UserOp';
 import { EntryPoint__factory } from './typechains/EntryPoint__factory';
 import { getHttpRpcClient } from './utils/getHttpRpcClient';
 import { getUserOpReceipt } from './utils/getUserOpReceipt';
+import { VerifyingPaymaster__factory } from './typechains/VerifyingPaymaster__factory';
 
 const entrypointAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'; //EntryPoint
 const accountAddress = '0x0E1c853Cc60f5f1bB4D6e830C8257b75672919d1'; //MoonKeyGnosisAccountFactory
+const paymasterAddress = '0xcA0987D90f298B0c2FDeD195228EE37Fe584a229'; //VerifyingPaymaster with stake
+const VALID_UNTIL = 1777068462;
+const VALID_AFTER = 0;
 
 async function main() {
   // setup provider and signer
@@ -14,7 +23,14 @@ async function main() {
     `https://bsc-testnet.nodereal.io/v1/${process.env.NODEREAL_API}`
   );
   const owner = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
-  const funder = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
+  // const funder = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY!, provider);
+  const offchainSigner = new ethers.Wallet(
+    process.env.PAYMASTER_OWNER_PRIVATE_KEY!,
+    provider
+  );
+  const paymaster = new VerifyingPaymaster__factory(owner).attach(
+    paymasterAddress
+  );
 
   // Get contracts to interacte with
   const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
@@ -37,11 +53,11 @@ async function main() {
   );
   console.log('Your ER4337 address', counterfactualAddress);
 
-  // Funding the deterministic address
-  await funder.sendTransaction({
-    to: counterfactualAddress,
-    value: parseEther('0.1'),
-  });
+  // Funding the deterministic address if not using paymaster
+  // await funder.sendTransaction({
+  //   to: counterfactualAddress,
+  //   value: parseEther('0.1'),
+  // });
 
   // Initalizing code to deploy to the deterministic address of ERC-4337
   const initCode = hexConcat([
@@ -53,11 +69,44 @@ async function main() {
   ]);
   console.log('initCode', initCode);
 
-  const op = await fillAndSign(
+  const userOp = await fillAndSign(
     {
       sender: counterfactualAddress,
-      initCode,
+      initCode: initCode,
       verificationGasLimit: 1000000,
+      paymasterAndData: hexConcat([
+        paymasterAddress,
+        defaultAbiCoder.encode(
+          ['uint48', 'uint48'],
+          [VALID_UNTIL, VALID_AFTER]
+        ),
+        '0x' + '00'.repeat(65),
+      ]),
+    },
+    owner,
+    entryPoint
+  );
+
+  // Sign OffChain to verify as paymaster
+  const hash = await paymaster.callStatic.getHash(
+    userOp,
+    VALID_UNTIL,
+    VALID_AFTER
+  );
+  const sig = await offchainSigner.signMessage(arrayify(hash));
+
+  // Build userOperation
+  const op = await fillAndSign(
+    {
+      ...userOp,
+      paymasterAndData: hexConcat([
+        paymasterAddress,
+        defaultAbiCoder.encode(
+          ['uint48', 'uint48'],
+          [VALID_UNTIL, VALID_AFTER]
+        ),
+        sig,
+      ]),
     },
     owner,
     entryPoint
@@ -74,6 +123,8 @@ async function main() {
   console.log(`UserOpHash: ${uoHash}`);
 
   console.log('Waiting for transaction...');
+
+  // Retrive transaction hash on completion
   const txHash = await getUserOpReceipt(
     provider,
     entrypointAddress,
